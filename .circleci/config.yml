@@ -1,0 +1,44 @@
+version: 2.1
+
+orbs:
+  browser-tools: circleci/browser-tools@1.1
+
+jobs:
+  install-dependencies-and-test:
+    docker:
+      - image: cimg/python:3.7-browsers
+    steps:
+      - checkout
+      - browser-tools/install-browser-tools
+      - run:
+          name: Run Tests
+          command: |
+            pip install --upgrade pip
+            cd resources
+            pip install -r requirements.txt
+            cd ../test_cases
+            sudo npm install -g allure-commandline --save-dev
+            python -m pytest --alluredir=../reports/allure_results --junitxml=../reports/allure-results/junit.xml
+ 
+
+      - run:
+          name: Generate and copy results
+          command: |
+            echo $PWD
+            ls
+            mkdir artifacts
+            allure generate reports/allure_results --clean -o reports/allure-report
+            cp -R reports/allure-report artifacts/test_report
+          when: always
+
+      - store_test_results:
+          path: reports
+
+      - store_artifacts:
+          path: artifacts
+
+
+workflows:
+  test-deploy:
+    jobs:
+      - install-dependencies-and-test
