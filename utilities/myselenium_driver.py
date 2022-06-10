@@ -1,5 +1,6 @@
 import pytest
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
@@ -267,3 +268,66 @@ class SeleniumDriver:
         by_type = self.get_by_type(locator_type)
         element = WebDriverWait(self.driver, timer).until(ec.text_to_be_present_in_element((by_type, locator), text))
         return element
+
+    def get_current_url(self):
+        return self.driver.current_url
+
+    def move_to_element(self, locator, locator_type="xpath", element=None):
+        if element is None:
+            element = self.get_element(locator, locator_type)
+            self.wait_for_element_to_be_visible(locator, locator_type)
+            ActionChains(self.driver).move_to_element(element).click().perform()
+        else:
+            ActionChains(self.driver).move_to_element(element).click().perform()
+
+    def clear_element_text(self, text, element):
+        for i in range(len(text)):
+            element.send_keys(Keys.BACK_SPACE)
+
+    # Below are the methods for handling browser local storage
+
+    def __len__(self):
+        return self.driver.execute_script("return window.localStorage.length;")
+
+    def get_localstorage_items(self):
+        return self.driver.execute_script(
+            "var ls = window.localStorage, items = {}; ""for (var i = 0, k; i < ls.length; ++i) ""items[k = ls.key("
+            "i)] = ls.getItem(k); ""return items; ")
+
+    def get_keys(self):
+        return self.driver.execute_script(
+            "var ls = window.localStorage, keys = []; ""for (var i = 0; i < ls.length; ++i) ""  keys[i] = ls.key(i); "
+            "return keys; ")
+
+    def get_item_in_localstorage(self, key):
+        return self.driver.execute_script("return window.localStorage.getItem(arguments[0]);", key)
+
+    def set_item_in_localstorage(self, key, value):
+        self.driver.execute_script("window.localStorage.setItem(arguments[0], arguments[1]);", key, value)
+
+    def has_key_in_localstorage(self, key):
+        return key in self.get_keys()
+
+    def remove_item_from_localstorage(self, key):
+        self.driver.execute_script("window.localStorage.removeItem(arguments[0]);", key)
+
+    def clear_localstorage(self):
+        self.driver.execute_script("window.localStorage.clear();")
+
+    def __getitem__(self, key):
+        value = self.get_item_in_localstorage(key)
+        if value is None:
+            raise KeyError(key)
+        return value
+
+    def __setitem__(self, key, value):
+        self.set_item_in_localstorage(key, value)
+
+    def __contains__(self, key):
+        return key in self.get_keys()
+
+    def __iter__(self):
+        return self.get_localstorage_items().__iter__()
+
+    def __repr__(self):
+        return self.get_localstorage_items().__str__()
