@@ -1,4 +1,4 @@
-from page_objects.dummy_page import DummyPage
+from page_objects.page_object.dummy_page import DummyPage
 from utilities.myselenium_driver import SeleniumDriver
 
 

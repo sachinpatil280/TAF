@@ -1,7 +1,7 @@
 import pytest
 from selenium import webdriver
 from utilities.readProperties import read_config
-from libs.ui_fixtures import UI
+from fixtures.ui_fixtures import UI
 
 config_values = read_config('app_data')
 
