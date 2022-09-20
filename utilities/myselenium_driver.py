@@ -63,7 +63,6 @@ class SeleniumDriver:
     def click_element_using_actions_class(self, element=None, locator=None, locator_type="id"):
         if element is None:
             element = self.get_element(locator, locator_type)
-            self.wait_for_element_to_be_visible(locator, locator_type)
             ActionChains(self.driver).move_to_element(element).click().perform()
         else:
             ActionChains(self.driver).move_to_element(element).click().perform()
@@ -81,10 +80,13 @@ class SeleniumDriver:
         self.driver.execute_script(f'document.getElementById("{locator}").removeAttribute("{attribute}")')
 
     def is_element_present(self, locator, locator_type="id"):
-        element = self.get_element(locator, locator_type)
-        if element is not None:
-            return True
-        else:
+        try:
+            element = self.get_element(locator, locator_type)
+            if element is not None:
+                return True
+            else:
+                return False
+        except:
             return False
 
     def is_element_not_present(self, locator, locator_type="id"):
