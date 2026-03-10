@@ -114,6 +114,21 @@ class SeleniumDriver:
 
         return element
 
+    def wait_for_clickable_element(self, locator, locator_type="id", timeout=10):
+        """
+        Wait for element to be clickable with simplified parameters
+        Args:
+            locator: The locator value
+            locator_type: Type of locator (id, name, xpath, css, etc.)
+            timeout: Maximum time to wait in seconds (default: 10)
+        Returns:
+            WebElement once it's clickable
+        """
+        by_type = self.get_by_type(locator_type)
+        wait = WebDriverWait(self.driver, timeout)
+        element = wait.until(ec.element_to_be_clickable((by_type, locator)))
+        return element
+
     def wait_for_element_to_be_visible(self, locator, locator_type="id",
                                        timeout=20, pollFrequency=0.5):
         by_type = self.get_by_type(locator_type)
