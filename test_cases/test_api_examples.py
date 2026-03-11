@@ -204,33 +204,42 @@ class TestAPIExamples:
     @pytest.mark.regression
     def test_multiple_requests_workflow(self, api):
         """Test a complete workflow with multiple API calls"""
-        # Step 1: Create a post
+        # Note: JSONPlaceholder is a fake API - created resources don't persist
+        # Using an existing post ID for workflow demonstration
+        post_id = 1
+        
+        # Step 1: Read existing post
+        get_response = api.client.get(f'/posts/{post_id}')
+        api.client.validate_status_code(get_response, 200)
+        original_post = get_response.json()
+        
+        # Step 2: Update the post
+        updated_data = {
+            "title": "Updated Test Post",
+            "body": "Updated body content"
+        }
+        update_response = api.client.put(f'/posts/{post_id}', json_data=updated_data)
+        api.client.validate_status_code(update_response, 200)
+        
+        # Step 3: Partially update the post
+        patch_data = {"title": "Patched Test Post"}
+        patch_response = api.client.patch(f'/posts/{post_id}', json_data=patch_data)
+        api.client.validate_status_code(patch_response, 200)
+        
+        # Step 4: Create a new post (simulated)
         new_post = {
-            "title": "Test Post",
+            "title": "New Test Post",
             "body": "This is a test post",
             "userId": 1
         }
-        
         create_response = api.client.post('/posts', json_data=new_post)
         api.client.validate_status_code(create_response, 201)
         
-        created_post = create_response.json()
-        post_id = created_post.get('id', 101)  # JSONPlaceholder returns mock ID
-        
-        # Step 2: Retrieve the created post
-        get_response = api.client.get(f'/posts/{post_id}')
-        api.client.validate_status_code(get_response, 200)
-        
-        # Step 3: Update the post
-        updated_data = {"title": "Updated Test Post"}
-        update_response = api.client.patch(f'/posts/{post_id}', json_data=updated_data)
-        api.client.validate_status_code(update_response, 200)
-        
-        # Step 4: Delete the post
+        # Step 5: Delete the post (simulated)
         delete_response = api.client.delete(f'/posts/{post_id}')
         api.client.validate_status_code(delete_response, 200)
         
-        print(f"\n✓ Complete workflow executed: Create → Read → Update → Delete")
+        print(f"\n✓ Complete workflow executed: Read → Update → Patch → Create → Delete")
 
     @pytest.mark.api
     @pytest.mark.regression
