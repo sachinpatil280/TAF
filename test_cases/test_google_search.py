@@ -123,7 +123,7 @@ class TestGoogleSearch:
             special_search = "test automation"  # Google filters special chars, use simple term
             ui.google_search_page.clear_search_box()
             time.sleep(0.5)
-            assert ui.google_search_page.search_and_wait(special_search), "Special character search failed"
+            assert ui.google_search_page.search_and_wait(special_search)
             time.sleep(1)
             results = ui.google_search_page.get_search_results_count()
             assert results > 0, f"Special search returned no results"
